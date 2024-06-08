@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Employee</title>
+    <style>
+        /* Basic form styling */
+        form {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+ 
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+ 
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+ 
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+ 
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Employee</h1>
+    <form id="employeeForm">
+        <label for="employeeName">Employee Name:</label>
+        <input type="text" id="employeeName" name="employeeName" required pattern="[a-zA-Z\s]+" title="Only letters and spaces allowed.">
+ 
+        <label for="employeeMobile">Employee Mobile:</label>
+        <input type="tel" id="employeeMobile" name="employeeMobile" required pattern="\d{10}" title="Must be a 10-digit number.">
+ 
+        <label for="employeeEmail">Employee Email:</label>
+        <input type="email" id="employeeEmail" name="employeeEmail" required>
+ 
+        <label for="employeeDob">Employee Date of Birth:</label>
+        <input type="date" id="employeeDob" name="employeeDob" required>
+ 
+        <label for="employeeCityId">Employee City ID:</label>
+        <input type="number" id="employeeCityId" name="employeeCityId" required min="1">
+ 
+        <label for="employeeDepartmentId">Employee Department ID:</label>
+        <input type="number" id="employeeDepartmentId" name="employeeDepartmentId" required min="1">
+ 
+        <button type="button" onclick="submitForm()">Create Employee</button>
+		
+    </form>
+ 
+    <script>
+    function submitForm() {
+        const form = document.getElementById("employeeForm");
+        const formData = {
+            employeeName: form.employeeName.value,
+            employeeMobile: form.employeeMobile.value,
+            employeeEmail: form.employeeEmail.value,
+            employeeDob: form.employeeDob.value,
+            employeeCityId: parseInt(form.employeeCityId.value),
+            employeeDepartmentId: parseInt(form.employeeDepartmentId.value)
+        };
+ 
+        fetch("/employee/create-employee", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Employee created successfully!");
+                form.reset(); // Reset form after success
+				window.location.href="details.html";
+            } else {
+                alert("Failed to create employee.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while creating the employee.");
+        });
+    }
+    </script>
+</body>
+</html>
+ 

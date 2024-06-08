@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>City Management</title>
+    <style>
+        /* Basic table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+ 
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+ 
+        th {
+            background-color: #f2f2f2;
+        }
+ 
+        /* Button styling */
+        .btn {
+            padding: 6px 12px;
+            margin: 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+ 
+        .btn-update {
+            background-color: #4CAF50;
+            color: white;
+        }
+ 
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+ 
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+ 
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 5px;
+        }
+ 
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+ 
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Add form group styling */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        /* Adjust button alignment */
+        .update-form button {
+            margin-top: 10px;
+        }
+        
+        /* Adjust modal content width */
+        .modal-content {
+            width: 80%;
+            max-width: 400px;
+        }
+        
+        /* Center modal content horizontally */
+        .modal-content {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+    </style>
+</head>
+<body>
+    <h1>City Management</h1>
+ 
+    <!-- City table -->
+    <table id="cityTable">
+        <thead>
+            <tr>
+                <th>City ID</th>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+ 
+    <!-- Update city modal -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2>Update City</h2>
+            <form id="cityForm" class="update-form">
+                <div class="form-group">
+                    <label for="cityId">City ID:</label>
+                    <input type="number" id="cityId" name="cityId" required min="1" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="cityName">City Name:</label>
+                    <input type="text" id="cityName" name="cityName" required pattern="[a-zA-Z\s]+" title="Only letters and spaces allowed.">
+                </div>
+                <div class="form-group">
+                    <label for="cityCode">City Code:</label>
+                    <input type="text" id="cityCode" name="cityCode" required pattern="\d{10}" title="Must be a 10-digit number.">
+                </div>
+                <button type="button" onclick="updateCity()">Update</button>
+            </form>
+        </div>
+    </div>
+ 
+    <script>
+        // Function to load all cities and display in the table
+        function loadCities() {
+            fetch("/city/list-city")
+                .then(response => response.json())
+                .then(cities => {
+                    const tableBody = document.querySelector("#cityTable tbody");
+                    tableBody.innerHTML = ""; // Clear the table before inserting new rows
+                    cities.forEach(city => {
+                        const row = `
+                            <tr>
+                                <td>${city.cityId}</td>
+                                <td>${city.cityName}</td>
+                                <td>${city.cityCode}</td>
+                                <td>
+                                    <button class="btn btn-update" onclick="showUpdateModal(${city.cityId})">Update</button>
+                                    <button class="btn btn-delete" onclick="deleteCity(${city.cityId})">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                        tableBody.insertAdjacentHTML("beforeend", row);
+                    });
+                })
+                .catch(error => console.error("Error:", error));
+        }
+ 
+        // Load cities when the page is loaded
+        document.addEventListener("DOMContentLoaded", loadCities);
+ 
+        // Function to open the update modal with the current city data
+        function showUpdateModal(cityId) {
+            fetch(`/city/list-city/${cityId}`)
+                .then(response => response.json())
+                .then(city => {
+                    const form = document.getElementById("cityForm");
+                    form.cityId.value = city.cityId; // Set city ID
+                    form.cityName.value = city.cityName || ''; // Set city name
+                    form.cityCode.value = city.cityCode || ''; // Set city code
+                    form.dataset.cityId = cityId; // Store the city ID
+                    document.getElementById("updateModal").style.display = "block"; // Open the modal
+                })
+                .catch(error => console.error("Error:", error));
+        }
+ 
+        // Close the modal
+        function closeModal() {
+            document.getElementById("updateModal").style.display = "none";
+        }
+ 
+        // Function to update the city data
+        function updateCity() {
+            const form = document.getElementById("cityForm");
+            const cityId = form.dataset.cityId; // Get the city ID from the data attribute
+ 
+            const formData = {
+                cityName: form.cityName.value,
+                cityCode: form.cityCode.value
+            };
+ 
+            fetch(`/city/update-city/${cityId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("City updated successfully.");
+                    loadCities(); // Reload the table to reflect changes
+                    closeModal(); // Close the modal
+                } else {
+                    alert("Failed to update city.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while updating the city.");
+            });
+        }
+ 
+        // Function to delete a city with a confirmation prompt
+        function deleteCity(cityId) {
+            if (confirm("Are you sure you want to delete this city?")) {
+                fetch(`/city/delete-city/${cityId}`, {
+                    method: "DELETE"
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert("City deleted successfully.");
+                        loadCities(); // Reload the table to reflect changes
+                    } else {
+                        alert("Failed to delete city.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while deleting the city.");
+                });
+            }
+        }
+ 
+        // Function to search for a city
+		// Function to search for a city
+		function searchCity() {
+		    const searchInput = document.getElementById("searchInput").value.trim();
+		    if (searchInput === "") {
+		        // If search input is empty, reload all cities
+		        loadCities();
+		    } else {
+		        fetch(`/city/search/${searchInput}`)
+		            .then(response => response.json())
+		            .then(cities => {
+		                const tableBody = document.querySelector("#cityTable tbody");
+		                tableBody.innerHTML = ""; // Clear the existing table body
+		                if (cities.length === 0) {
+		                    // If no results found, display a message
+		                    const row = `<tr><td colspan="3">No city found with this criteria.</td></tr>`;
+		                    tableBody.insertAdjacentHTML("beforeend", row);
+		                } else {
+		                    // Populate the table with the search results
+		                    cities.forEach(city => {
+		                        const row = `
+		                            <tr>
+		                                <td>${city.cityId}</td>
+		                                <td>${city.cityName}</td>
+		                                <td>${city.cityCode}</td>
+		                                <td>
+		                                    <button class="btn btn-update" onclick="showUpdateModal(${city.cityId})">Update</button>
+		                                    <button class="btn btn-delete" onclick="deleteCity(${city.cityId})">Delete</button>
+		                                </td>
+		                            </tr>
+		                        `;
+		                        tableBody.insertAdjacentHTML("beforeend", row);
+		                    });
+		                }
+		            })
+		            .catch(error => console.error("Error:", error));
+		    }
+		}
+
+    </script>
+</body>
+<h2>Search City</h2>
+<form id="searchForm">
+    <label for="searchInput">Enter City Name or City Code:</label>
+    <input type="text" id="searchInput" required>
+    <button type="button" onclick="searchCity()">Search</button>
+</form>
+<!-- Search result -->
+<div id="searchResult">
+    <!-- Search result will be displayed here -->
+</div>
+</html>

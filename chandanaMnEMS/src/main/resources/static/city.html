@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add City Details</title>
+    <style>
+        /* Basic form styling */
+        form {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+ 
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+ 
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+ 
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+ 
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create Employee</h1>
+    <form id="cityForm">
+        <label for="cityName">City Name:</label>
+        <input type="text" id="cityName" name="cityName" required pattern="[a-zA-Z\s]+" title="Only letters and spaces allowed.">
+ 
+        <label for="cityCode">City Code:</label>
+        <input type="text" id="cityCode" name="cityCode" required pattern="\d{10}" title="Must be a 10-digit number.">
+ 
+        <button type="button" onclick="submitForm()">Add</button>
+        <br>
+        <br>
+        <label for="cityId">City ID to delete:</label>
+        <input type="number" id="cityId" name="cityId" required>
+        <br>
+        <button type="button" onclick="deleteCity()">Delete</button>
+        <br>
+        <br>
+    </form>
+ 
+    <script>
+    function submitForm() {
+        const form = document.getElementById("cityForm");
+        const formData = {
+            cityName: form.cityName.value,
+            cityCode: form.cityCode.value,
+        };
+ 
+        fetch("/city/create-city", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("City created successfully!");
+                form.reset(); // Reset form after success
+                // Redirect to citydisplay.html after adding a city
+                window.location.href = "citydisplay.html";
+            } else {
+                alert("Failed to create city.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while creating the city.");
+        });
+    }
+
+    function deleteCity() {
+        const form = document.getElementById("cityForm");
+        const cityId = form.cityId.value;
+
+        fetch(`/city/delete-city/${cityId}`, {
+            method: "DELETE"
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("City deleted successfully!");
+                form.reset(); // Reset form after success
+            } else {
+                alert("Failed to delete city.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while deleting the city.");
+        });
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Management</title>
+    <style>
+        /* Basic table styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+ 
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+ 
+        th {
+            background-color: #f2f2f2;
+        }
+ 
+        /* Button styling */
+        .btn {
+            padding: 6px 12px;
+            margin: 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+ 
+        .btn-update {
+            background-color: #4CAF50;
+            color: white;
+        }
+ 
+        .btn-delete {
+            background-color: #f44336;
+            color: white;
+        }
+ 
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+ 
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 5px;
+        }
+ 
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+ 
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+		/* Add form group styling */
+		.form-group {
+		    margin-bottom: 15px;
+		}
+		
+		/* Adjust button alignment */
+		.update-form button {
+		    margin-top: 10px;
+		}
+		
+		/* Adjust modal content width */
+		.modal-content {
+		    width: 80%;
+		    max-width: 400px;
+		}
+		
+		/* Center modal content horizontally */
+		.modal-content {
+		    left: 50%;
+		    transform: translateX(-50%);
+		}
+
+    </style>
+</head>
+<body>
+    <h1>Employee Management</h1>
+ 
+    <!-- Employee table -->
+    <table id="employeeTable">
+        <thead>
+            <tr>
+                <th>Employee ID</th>
+                <th>Name</th>
+                <th>Mobile</th>
+                <th>Email</th>
+                <th>Date of Birth</th>
+                <th>City ID</th>
+                <th>Department ID</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+ 
+    <!-- Update employee modal -->
+	<!-- Update employee modal -->
+	<div id="updateModal" class="modal">
+	    <div class="modal-content">
+	        <span class="close" onclick="closeModal()">&times;</span>
+	        <h2>Update Employee</h2>
+	        <form id="employeeForm" class="update-form">
+	            <div class="form-group">
+	                <label for="employeeId">Employee ID:</label>
+	                <input type="number" id="employeeId" name="employeeId" required min="1" readonly>
+	            </div>
+	            <div class="form-group">
+	                <label for="employeeName">Employee Name:</label>
+	                <input type="text" id="employeeName" name="employeeName" required pattern="[a-zA-Z\s]+" title="Only letters and spaces allowed.">
+	            </div>
+	            <div class="form-group">
+	                <label for="employeeMobile">Employee Mobile:</label>
+	                <input type="tel" id="employeeMobile" required pattern="\d{10}" title="Must be a 10-digit number.">
+	            </div>
+	            <div class="form-group">
+	                <label for="employeeEmail">Employee Email:</label>
+	                <input type="email" id="employeeEmail" required>
+	            </div>
+	            <div class="form-group">
+	                <label for="employeeDob">Employee Date of Birth:</label>
+	                <input type="date" id="employeeDob" required>
+	            </div>
+	            <div class="form-group">
+	                <label for="employeeCityId">Employee City ID:</label>
+	                <input type="number" id="employeeCityId" required min="1">
+	            </div>
+	            <div class="form-group">
+	                <label for="employeeDepartmentId">Employee Department ID:</label>
+	                <input type="number" id="employeeDepartmentId" required min="1">
+	            </div>
+	            <button type="button" onclick="updateEmployee()">Update</button>
+	        </form>
+	    </div>
+		
+	</div>
+
+ 
+    <script>
+        // Function to load all employees and display in the table
+        function loadEmployees() {
+            fetch("/employee/list-employee")
+                .then(response => response.json())
+                .then(employees => {
+                    const tableBody = document.querySelector("#employeeTable tbody");
+                    tableBody.innerHTML = ""; // Clear the table before inserting new rows
+                    employees.forEach(employee => {
+                        const row = `
+                            <tr>
+                                <td>${employee.employeeId}</td>
+                                <td>${employee.employeeName}</td>
+                                <td>${employee.employeeMobile}</td>
+                                <td>${employee.employeeEmail}</td>
+                                <td>${employee.employeeDob}</td>
+                                <td>${employee.employeeCityId}</td>
+                                <td>${employee.employeeDepartmentId}</td>
+                                <td>
+                                    <button class="btn btn-update" onclick="showUpdateModal(${employee.employeeId})">Update</button>
+                                    <button class="btn btn-delete" onclick="deleteEmployee(${employee.employeeId})">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                        tableBody.insertAdjacentHTML("beforeend", row);
+                    });
+                })
+                .catch(error => console.error("Error:", error));
+        }
+ 
+        // Load employees when the page is loaded
+        document.addEventListener("DOMContentLoaded", loadEmployees);
+ 
+        // Function to open the update modal with the current employee data
+		// Function to open the update modal with the current employee data
+		// Function to open the update modal with the current employee data
+		// Function to open the update modal with the current employee data
+		// Function to open the update modal with the current employee data
+		function showUpdateModal(employeeId) {
+		    fetch(`/employee/list-employee/${employeeId}`)
+		        .then(response => response.json())
+		        .then(employee => {
+		            console.log("Employee Data:", employee);
+		
+		            const form = document.getElementById("employeeForm");
+		
+		            form.employeeId.value = employee.employeeId; // Set employee ID
+		            form.employeeName.value = employee.employeeName || ''; // Set employee name
+		            form.employeeMobile.value = employee.employeeMobile || ''; // Set employee mobile
+		            form.employeeEmail.value = employee.employeeEmail || ''; // Set employee email
+		            form.employeeDob.value = employee.employeeDob || ''; // Set employee date of birth
+		            form.employeeCityId.value = employee.employeeCityId || ''; // Set employee city ID
+		            form.employeeDepartmentId.value = employee.employeeDepartmentId || ''; // Set employee department ID
+		
+		            form.dataset.employeeId = employeeId; // Store the employee ID
+		
+		            console.log("Form Data:", form);
+		
+		            document.getElementById("updateModal").style.display = "block"; // Open the modal
+		        })
+		        .catch(error => console.error("Error:", error));
+		}
+
+
+
+
+
+ 
+        // Close the modal
+        function closeModal() {
+            document.getElementById("updateModal").style.display = "none";
+        }
+ 
+        // Function to update the employee data
+        function updateEmployee() {
+            const form = document.getElementById("employeeForm");
+            const employeeId = form.dataset.employeeId; // Get the employee ID from the data attribute
+ 
+            const formData = {
+                employeeId: form.employeeId.value,
+                employeeName: form.employeeName.value,
+                employeeMobile: form.employeeMobile.value,
+                employeeEmail: form.employeeEmail.value,
+                employeeDob: form.employeeDob.value,
+                employeeCityId: form.employeeCityId.value,
+                employeeDepartmentId: form.employeeDepartmentId.value
+            };
+ 
+            fetch(`/employee/update-employee/${employeeId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("Employee updated successfully.");
+                    loadEmployees(); // Reload the table to reflect changes
+                    closeModal(); // Close the modal
+                } else {
+                    alert("Failed to update employee.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while updating the employee.");
+            });
+        }
+ 
+        // Function to delete an employee with a confirmation prompt
+        function deleteEmployee(employeeId) {
+            if (confirm("Are you sure you want to delete this employee?")) {
+                fetch(`/employee/delete-employee/${employeeId}`, {
+                    method: "DELETE"
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Employee deleted successfully.");
+                        loadEmployees(); // Reload the table to reflect changes
+                    } else {
+                        alert("Failed to delete employee.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while deleting the employee.");
+                });
+            }
+        }
+		function searchEmployee() {
+				        const searchInput = document.getElementById("searchInput").value.trim();
+				        let searchCriteria;
+				        
+				        // Determine the search criteria based on the entered value
+				        if (searchInput.includes('@')) {
+				            searchCriteria = 'email';
+				        } else if (!isNaN(searchInput)) {
+				            if (searchInput.length === 10) {
+				                searchCriteria = 'mobile';
+				            } else if (searchInput.length === 1) {
+				                searchCriteria = 'departmentId';
+				            } else {
+				                searchCriteria = 'cityId';
+				            }
+				        } else {
+				            alert('Please enter a valid mobile number, email, department ID, or city ID.');
+				            return;
+				        }
+				    
+				        // Perform the search based on the determined criteria
+				        fetch(`/employee/search-by-${searchCriteria}/${searchInput}`)
+				        .then(response => response.json())
+				        .then(data => {
+				            const tableBody = document.querySelector("#employeeTable tbody");
+				            tableBody.innerHTML = ""; // Clear the existing table body
+				            
+				            if (data.length === 0) {
+				                // If no results found, display a message
+				                const row = `<tr><td colspan="8">No employee found with this criteria.</td></tr>`;
+				                tableBody.insertAdjacentHTML("beforeend", row);
+				            } else {
+				                // Populate the table with the search results
+				                data.forEach(employee => {
+				                    const row = `
+				                        <tr>
+				                            <td>${employee.employeeId}</td>
+				                            <td>${employee.employeeName}</td>
+				                            <td>${employee.employeeMobile}</td>
+				                            <td>${employee.employeeEmail}</td>
+				                            <td>${employee.employeeDob}</td>
+				                            <td>${employee.employeeCityId}</td>
+				                            <td>${employee.employeeDepartmentId}</td>
+				                            <td>
+				                                <button class="btn btn-update" onclick="showUpdateModal(${employee.employeeId})">Update</button>
+				                                <button class="btn btn-delete" onclick="deleteEmployee(${employee.employeeId})">Delete</button>
+				                            </td>
+				                        </tr>
+				                    `;
+				                    tableBody.insertAdjacentHTML("beforeend", row);
+				                });
+				            }
+				        })
+				        .catch(error => {
+				            console.error("Error:", error);
+				            alert("An error occurred while searching for the employee.");
+				        });
+				    }
+		
+    </script>
+</body>
+<h2>Search Employee</h2>
+	<form id="searchForm">
+	    <label for="searchInput">Enter Mobile, Email:</label>
+	    <input type="text" id="searchInput" required>
+	    <button type="button" onclick="searchEmployee()">Search</button>
+	</form>
+	<!-- Search result -->
+	<div id="searchResult">
+	    <!-- Search result will be displayed here -->
+	</div>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Department Details</title>
+    <style>
+        /* Basic form styling */
+        form {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+ 
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+ 
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+ 
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+ 
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add Department Details</h1>
+    <form id="departmentForm">
+        <label for="departmentName">Department Name:</label>
+        <input type="text" id="departmentName" name="departmentName" required pattern="[a-zA-Z\s]+" title="Only letters and spaces allowed.">
+ 
+      
+ 
+        <button type="button" onclick="submitForm()">Add</button>
+        <br>
+		<br>
+    </form>
+ 
+    <script>
+    function submitForm() {
+        const form = document.getElementById("departmentForm");
+		const formData = {
+		    departmentName: form.departmentName.value,
+		};
+ 
+        fetch("/department/create-department", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            if (response.ok) {
+                alert("Department added successfully!");
+                form.reset(); // Reset form after success
+				window.location.href = "departmentdisplay.html";
+            } else {
+                alert("Failed to add department.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while adding the department.");
+        });
+    }
+    </script>
+</body>
+</html>
